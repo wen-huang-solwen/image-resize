@@ -133,11 +133,18 @@ def upload():
         "crops": {},
     }
 
+    # Filter to requested sizes (default: all)
+    requested_sizes = request.form.getlist("sizes")
+    if requested_sizes:
+        selected = {k: v for k, v in ASPECT_RATIOS.items() if k in requested_sizes}
+    else:
+        selected = ASPECT_RATIOS
+
     # Initialize Gemini client
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or api_key == "your_key_here":
         # No API key — fall back to center crops for all ratios
-        for size_name, ratio_str in ASPECT_RATIOS.items():
+        for size_name, ratio_str in selected.items():
             target_w, target_h = [int(x) for x in size_name.split("x")]
             cropped = center_crop_fallback(img, ratio_str)
             cropped = cropped.resize((target_w, target_h), Image.LANCZOS)
@@ -153,7 +160,7 @@ def upload():
     description = describe_image(client, img)
 
     # Step 2: AI resize for each aspect ratio
-    for size_name, ratio_str in ASPECT_RATIOS.items():
+    for size_name, ratio_str in selected.items():
         target_w, target_h = [int(x) for x in size_name.split("x")]
 
         try:

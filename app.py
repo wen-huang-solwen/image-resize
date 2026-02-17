@@ -66,6 +66,7 @@ def ai_resize(client, img, description, ratio_str):
 
     response = client.models.generate_content(
         model="gemini-3-pro-image-preview",
+        #model="gemini-2.5-flash-image",
         contents=[prompt, img],
         config=types.GenerateContentConfig(
             response_modalities=["TEXT", "IMAGE"],
@@ -100,6 +101,25 @@ def center_crop_fallback(img, ratio_str):
     return img.crop((left, top, left + crop_w, top + crop_h))
 
 
+# Gemini-supported aspect ratios for ImageConfig
+GEMINI_RATIOS = ["1:1", "3:4", "4:3", "9:16", "16:9"]
+
+
+def _nearest_aspect_ratio(size_str):
+    """Find the closest Gemini-supported aspect ratio for a custom WxH size."""
+    w, h = [int(x) for x in size_str.split("x")]
+    target = w / h
+    best = None
+    best_diff = float("inf")
+    for r in GEMINI_RATIOS:
+        rw, rh = [int(x) for x in r.split(":")]
+        diff = abs(target - rw / rh)
+        if diff < best_diff:
+            best_diff = diff
+            best = r
+    return best
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -130,13 +150,20 @@ def upload():
 
     results = {
         "original": f"/static/uploads/{original_filename}",
+        "original_description": "",
         "crops": {},
     }
 
-    # Filter to requested sizes (default: all)
+    # Filter to requested sizes (default: all presets)
     requested_sizes = request.form.getlist("sizes")
     if requested_sizes:
-        selected = {k: v for k, v in ASPECT_RATIOS.items() if k in requested_sizes}
+        selected = {}
+        for size_str in requested_sizes:
+            if size_str in ASPECT_RATIOS:
+                selected[size_str] = ASPECT_RATIOS[size_str]
+            else:
+                # Custom size — compute nearest Gemini-supported aspect ratio
+                selected[size_str] = _nearest_aspect_ratio(size_str)
     else:
         selected = ASPECT_RATIOS
 
@@ -158,6 +185,7 @@ def upload():
 
     # Step 1: Describe the image
     description = describe_image(client, img)
+    results["original_description"] = description
 
     # Step 2: AI resize for each aspect ratio
     for size_name, ratio_str in selected.items():
@@ -182,6 +210,104 @@ def upload():
         results["crops"][size_name] = f"/static/uploads/{crop_filename}"
 
     return jsonify(results)
+
+
+@app.route("/refine", methods=["POST"])
+def refine():
+    generated_url = request.form.get("generated_url", "")
+    original_url = request.form.get("original_url", "")
+    original_description = request.form.get("original_description", "")
+    feedback = request.form.get("feedback", "")
+    size_name = request.form.get("size", "")
+
+    if not generated_url or not original_url or not feedback or not size_name:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Load images
+    generated_path = os.path.join(".", generated_url.lstrip("/"))
+    original_path = os.path.join(".", original_url.lstrip("/"))
+
+    if not os.path.exists(generated_path) or not os.path.exists(original_path):
+        return jsonify({"error": "Image not found"}), 404
+
+    generated_img = Image.open(generated_path)
+    original_img = Image.open(original_path)
+    if original_img.mode == "RGBA":
+        original_img = original_img.convert("RGB")
+    if generated_img.mode == "RGBA":
+        generated_img = generated_img.convert("RGB")
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or api_key == "your_key_here":
+        return jsonify({"error": "No API key configured"}), 500
+
+    client = genai.Client(api_key=api_key)
+
+    # Step 1: Describe the generated image
+    generated_description = describe_image(client, generated_img)
+
+    # Step 2: Compute aspect ratio
+    if size_name in ASPECT_RATIOS:
+        ratio_str = ASPECT_RATIOS[size_name]
+    else:
+        ratio_str = _nearest_aspect_ratio(size_name)
+
+    target_w, target_h = [int(x) for x in size_name.split("x")]
+
+    # Step 3: Generate refined image using all context
+    prompt = (
+        f"Act as a professional Art Director using high-end photo editing software.\n"
+        f"You previously resized a marketing asset to {ratio_str} aspect ratio, but the client has feedback.\n\n"
+        f"ORIGINAL IMAGE DESCRIPTION:\n{original_description}\n\n"
+        f"CURRENT GENERATED IMAGE DESCRIPTION:\n{generated_description}\n\n"
+        f"CLIENT FEEDBACK:\n{feedback}\n\n"
+        f"Please regenerate the image at {ratio_str} aspect ratio, addressing the client's feedback.\n\n"
+        f"CRITICAL INSTRUCTION - STRICT SUBJECT PRESERVATION:\n"
+        f"The original image contains a SPECIFIC REAL-WORLD OBJECT.\n"
+        f"You MUST preserve the identity of this central subject exactly.\n\n"
+        f"DO NOT:\n"
+        f"- Do NOT generate a different object than what's in the original.\n"
+        f"- Do NOT change architectural details, packaging, or logos.\n"
+        f"- Do NOT hallucinate a 'similar' looking object.\n\n"
+        f"DO:\n"
+        f"1. Keep the main subject visually unchanged.\n"
+        f"2. Address the client's feedback while maintaining subject integrity.\n"
+        f"3. Ensure lighting and style consistency.\n"
+        f"4. Render in photorealistic 4k quality."
+    )
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-image",
+            contents=[prompt, original_img],
+            config=types.GenerateContentConfig(
+                response_modalities=["TEXT", "IMAGE"],
+                image_config=types.ImageConfig(aspect_ratio=ratio_str),
+            ),
+        )
+
+        resized = None
+        for part in response.candidates[0].content.parts:
+            if part.inline_data:
+                resized = Image.open(BytesIO(part.inline_data.data))
+                break
+
+        if resized is None:
+            return jsonify({"error": "AI failed to generate image"}), 500
+    except Exception:
+        return jsonify({"error": "AI generation failed"}), 500
+
+    # Resize to exact target dimensions
+    resized = resized.resize((target_w, target_h), Image.LANCZOS)
+    if resized.mode == "RGBA":
+        resized = resized.convert("RGB")
+
+    file_id = uuid.uuid4().hex[:8]
+    crop_filename = f"{file_id}_{size_name}.jpg"
+    crop_path = os.path.join(app.config["UPLOAD_FOLDER"], crop_filename)
+    resized.save(crop_path, "JPEG", quality=90)
+
+    return jsonify({"url": f"/static/uploads/{crop_filename}"})
 
 
 if __name__ == "__main__":

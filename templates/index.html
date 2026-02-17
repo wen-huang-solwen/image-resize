@@ -311,6 +311,91 @@
             color: #93b4f6;
         }
 
+        /* --- Custom size input --- */
+        .custom-size-section {
+            margin-top: 1rem;
+        }
+        .custom-size-section h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .custom-size-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .custom-size-row input[type="number"] {
+            width: 90px;
+            padding: 0.5rem 0.6rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            color: #1a1a2e;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .custom-size-row input[type="number"]:focus {
+            border-color: #3b82f6;
+        }
+        .custom-size-row .size-x {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-add-size {
+            background: none;
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .btn-add-size:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        .custom-size-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .custom-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #f0f7ff;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .custom-tag button {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+            display: flex;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .custom-tag button:hover { opacity: 1; }
+
         /* --- Loading --- */
         .loading {
             text-align: center;
@@ -435,6 +520,63 @@
             border-color: #3b82f6;
             color: #3b82f6;
         }
+        .result-card-feedback {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        .feedback-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+        .feedback-row textarea {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            color: #1a1a2e;
+            resize: vertical;
+            min-height: 36px;
+            max-height: 100px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .feedback-row textarea:focus {
+            border-color: #3b82f6;
+        }
+        .feedback-row textarea::placeholder {
+            color: #94a3b8;
+        }
+        .btn-refine {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-refine:hover { background: #2563eb; }
+        .btn-refine:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .refine-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+        }
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
@@ -522,7 +664,7 @@
         <h3>選擇輸出尺寸</h3>
         <div class="size-options">
             <div class="size-option">
-                <input type="checkbox" id="size-1080x1080" value="1080x1080" checked>
+                <input type="checkbox" id="size-1080x1080" value="1080x1080">
                 <label for="size-1080x1080">
                     <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="size-label-text">
@@ -532,7 +674,7 @@
                 </label>
             </div>
             <div class="size-option">
-                <input type="checkbox" id="size-1080x1920" value="1080x1920" checked>
+                <input type="checkbox" id="size-1080x1920" value="1080x1920">
                 <label for="size-1080x1920">
                     <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="size-label-text">
@@ -542,7 +684,7 @@
                 </label>
             </div>
             <div class="size-option">
-                <input type="checkbox" id="size-1200x628" value="1200x628" checked>
+                <input type="checkbox" id="size-1200x628" value="1200x628">
                 <label for="size-1200x628">
                     <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="size-label-text">
@@ -551,6 +693,16 @@
                     </span>
                 </label>
             </div>
+        </div>
+        <div class="custom-size-section">
+            <h4>自訂尺寸</h4>
+            <div class="custom-size-row">
+                <input type="number" id="customWidth" placeholder="寬" min="100" max="4096">
+                <span class="size-x">x</span>
+                <input type="number" id="customHeight" placeholder="高" min="100" max="4096">
+                <button class="btn-add-size" id="addCustomSize">+ 新增</button>
+            </div>
+            <div class="custom-size-tags" id="customSizeTags"></div>
         </div>
     </section>
 
@@ -606,8 +758,57 @@
             }
         });
 
+        // Custom sizes management
+        const customSizes = [];
+        const customWidthInput = document.getElementById('customWidth');
+        const customHeightInput = document.getElementById('customHeight');
+        const addCustomSizeBtn = document.getElementById('addCustomSize');
+        const customSizeTags = document.getElementById('customSizeTags');
+
+        addCustomSizeBtn.addEventListener('click', () => {
+            const w = parseInt(customWidthInput.value);
+            const h = parseInt(customHeightInput.value);
+            if (!w || !h || w < 100 || h < 100 || w > 4096 || h > 4096) {
+                showError('請輸入有效的尺寸（100 ~ 4096）。');
+                return;
+            }
+            const sizeStr = `${w}x${h}`;
+            if (customSizes.includes(sizeStr)) return;
+            errorDiv.classList.remove('active');
+            customSizes.push(sizeStr);
+            renderCustomTags();
+            customWidthInput.value = '';
+            customHeightInput.value = '';
+        });
+
+        // Allow Enter key to add size
+        [customWidthInput, customHeightInput].forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomSizeBtn.click();
+                }
+            });
+        });
+
+        function renderCustomTags() {
+            customSizeTags.innerHTML = '';
+            customSizes.forEach((size, idx) => {
+                const tag = document.createElement('span');
+                tag.className = 'custom-tag';
+                const [w, h] = size.split('x');
+                tag.innerHTML = `${w} x ${h}<button data-idx="${idx}">&times;</button>`;
+                tag.querySelector('button').addEventListener('click', () => {
+                    customSizes.splice(idx, 1);
+                    renderCustomTags();
+                });
+                customSizeTags.appendChild(tag);
+            });
+        }
+
         function getSelectedSizes() {
-            return Array.from(document.querySelectorAll('.size-option input:checked')).map(cb => cb.value);
+            const preset = Array.from(document.querySelectorAll('.size-option input:checked')).map(cb => cb.value);
+            return [...preset, ...customSizes];
         }
 
         async function handleFile(file) {
@@ -643,6 +844,7 @@
                     return;
                 }
 
+                lastUploadData = data;
                 displayResults(data);
             } catch (err) {
                 showError('發生錯誤，請重新嘗試。');
@@ -650,6 +852,9 @@
                 loading.classList.remove('active');
             }
         }
+
+        // Store last upload data for refine calls
+        let lastUploadData = null;
 
         function showError(msg) {
             errorInner.textContent = msg;
@@ -669,25 +874,90 @@
             '1200x628': '1200 x 628',
         };
 
+        function formatSizeLabel(key) {
+            if (ratioLabels[key]) return ratioLabels[key];
+            const [w, h] = key.split('x');
+            return `自訂 ${w} x ${h}`;
+        }
+
+        function formatDimensions(key) {
+            if (dimensionLabels[key]) return dimensionLabels[key];
+            const [w, h] = key.split('x');
+            return `${w} x ${h}`;
+        }
+
         function displayResults(data) {
             resultsGrid.innerHTML = '';
 
             for (const [key, url] of Object.entries(data.crops)) {
                 const card = document.createElement('div');
                 card.className = 'result-card';
+
+                const cardId = `card-${key}-${Date.now()}`;
                 card.innerHTML = `
                     <div class="result-card-header">
-                        <h3>${ratioLabels[key] || key}</h3>
-                        <span class="dimensions">${dimensionLabels[key] || key}</span>
+                        <h3>${formatSizeLabel(key)}</h3>
+                        <span class="dimensions">${formatDimensions(key)}</span>
                     </div>
                     <div class="img-wrapper">
-                        <img src="${url}" alt="${key} resize">
+                        <img src="${url}" alt="${key} resize" id="img-${cardId}">
                     </div>
                     <div class="result-card-footer">
-                        <a class="btn-download" href="${url}" download="${key}.jpg">下載</a>
+                        <a class="btn-download" href="${url}" download="${key}.jpg" id="dl-${cardId}">下載</a>
+                    </div>
+                    <div class="result-card-feedback">
+                        <div class="feedback-row">
+                            <textarea placeholder="輸入修改建議..." id="fb-${cardId}"></textarea>
+                            <button class="btn-refine" id="btn-${cardId}">重新生成</button>
+                        </div>
                     </div>
                 `;
                 resultsGrid.appendChild(card);
+
+                // Bind refine button
+                const refineBtn = document.getElementById(`btn-${cardId}`);
+                const feedbackInput = document.getElementById(`fb-${cardId}`);
+                const imgEl = document.getElementById(`img-${cardId}`);
+                const dlEl = document.getElementById(`dl-${cardId}`);
+                let currentUrl = url;
+
+                refineBtn.addEventListener('click', async () => {
+                    const feedback = feedbackInput.value.trim();
+                    if (!feedback) {
+                        showError('請輸入修改建議。');
+                        return;
+                    }
+                    if (!lastUploadData) return;
+
+                    refineBtn.disabled = true;
+                    refineBtn.innerHTML = '<span class="refine-spinner"></span>';
+                    errorDiv.classList.remove('active');
+
+                    const formData = new FormData();
+                    formData.append('generated_url', currentUrl);
+                    formData.append('original_url', lastUploadData.original);
+                    formData.append('original_description', lastUploadData.original_description || '');
+                    formData.append('feedback', feedback);
+                    formData.append('size', key);
+
+                    try {
+                        const resp = await fetch('/refine', { method: 'POST', body: formData });
+                        const result = await resp.json();
+                        if (!resp.ok) {
+                            showError(result.error || '重新生成失敗');
+                        } else {
+                            currentUrl = result.url;
+                            imgEl.src = result.url;
+                            dlEl.href = result.url;
+                            feedbackInput.value = '';
+                        }
+                    } catch (e) {
+                        showError('重新生成時發生錯誤。');
+                    } finally {
+                        refineBtn.disabled = false;
+                        refineBtn.textContent = '重新生成';
+                    }
+                });
             }
 
             results.classList.add('active');

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Image Resize</title>
+    <title>智慧圖片調整</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -361,23 +361,23 @@
     <nav>
         <div class="logo">ImageCraft</div>
         <ul class="nav-links">
-            <li><a href="#upload">Upload</a></li>
-            <li><a href="#results">Results</a></li>
+            <li><a href="#upload">上傳</a></li>
+            <li><a href="#results">結果</a></li>
         </ul>
     </nav>
 
     <section class="hero">
         <div>
-            <span class="hero-badge">AI-Powered Resizing</span>
-            <h1>Resize Your Images with <span class="accent">AI Precision</span></h1>
+            <span class="hero-badge">AI 智慧調整</span>
+            <h1>以 <span class="accent">AI 精準度</span>調整您的圖片</h1>
             <p class="hero-description">
-                Upload any image and get perfectly resized versions for every platform.
-                Our AI preserves your subject while adapting the composition.
+                上傳任意圖片，即可取得適用於各平台的完美尺寸版本。
+                我們的 AI 會保留主體，同時自動調整構圖。
             </p>
             <div class="hero-actions">
-                <button class="btn-primary" id="heroUploadBtn">Upload Image</button>
+                <button class="btn-primary" id="heroUploadBtn">上傳圖片</button>
                 <button class="btn-secondary" id="heroLearnBtn">
-                    How it works
+                    了解更多
                     <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor"/></svg>
                 </button>
             </div>
@@ -388,8 +388,8 @@
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div>
-                    <h3>AI Subject Preservation</h3>
-                    <p>Gemini AI keeps your main subject intact while adapting the background.</p>
+                    <h3>AI 主體保留</h3>
+                    <p>Gemini AI 完整保留圖片主體，同時自動調整背景。</p>
                 </div>
             </div>
             <div class="feature-item">
@@ -397,8 +397,8 @@
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div>
-                    <h3>Three Output Sizes</h3>
-                    <p>1080x1080 square, 1080x1920 portrait, and 1200x628 landscape.</p>
+                    <h3>三種輸出尺寸</h3>
+                    <p>1080x1080 正方形、1080x1920 直式、1200x628 橫式。</p>
                 </div>
             </div>
             <div class="feature-item">
@@ -406,8 +406,8 @@
                     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div>
-                    <h3>Intelligent Outpainting</h3>
-                    <p>Extends backgrounds naturally to fill new aspect ratios.</p>
+                    <h3>智慧延伸填充</h3>
+                    <p>自然地延伸背景，填滿新的長寬比。</p>
                 </div>
             </div>
         </div>
@@ -419,8 +419,8 @@
             <div class="upload-icon">
                 <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </div>
-            <p class="upload-text">Drag &amp; drop an image here, or <span class="browse">browse</span></p>
-            <p class="upload-hint">Supports PNG, JPG, JPEG, WebP, and GIF</p>
+            <p class="upload-text">將圖片拖放至此，或<span class="browse">瀏覽檔案</span></p>
+            <p class="upload-hint">支援 PNG、JPG、JPEG、WebP 和 GIF 格式</p>
         </div>
     </section>
 
@@ -430,12 +430,12 @@
 
     <div class="loading" id="loading">
         <div class="spinner"></div>
-        <p>Analyzing image and generating AI resizes...</p>
+        <p>正在分析圖片並以 AI 生成調整版本...</p>
     </div>
 
     <section class="results" id="results">
         <div class="results-header">
-            <h2>Resized Images</h2>
+            <h2>調整後的圖片</h2>
         </div>
         <div class="results-grid" id="resultsGrid"></div>
     </section>
@@ -478,7 +478,7 @@
 
         async function handleFile(file) {
             if (!file.type.startsWith('image/')) {
-                showError('Please select a valid image file.');
+                showError('請選擇有效的圖片檔案。');
                 return;
             }
 
@@ -498,13 +498,13 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    showError(data.error || 'Upload failed');
+                    showError(data.error || '上傳失敗');
                     return;
                 }
 
                 displayResults(data);
             } catch (err) {
-                showError('Something went wrong. Please try again.');
+                showError('發生錯誤，請重新嘗試。');
             } finally {
                 loading.classList.remove('active');
             }
@@ -517,9 +517,9 @@
         }
 
         const ratioLabels = {
-            '1080x1080': '1:1 Square',
-            '1080x1920': '9:16 Portrait',
-            '1200x628': '16:9 Landscape',
+            '1080x1080': '1:1 正方形',
+            '1080x1920': '9:16 直式',
+            '1200x628': '16:9 橫式',
         };
 
         const dimensionLabels = {
@@ -543,7 +543,7 @@
                         <img src="${url}" alt="${key} resize">
                     </div>
                     <div class="result-card-footer">
-                        <a class="btn-download" href="${url}" download="${key}.jpg">Download</a>
+                        <a class="btn-download" href="${url}" download="${key}.jpg">下載</a>
                     </div>
                 `;
                 resultsGrid.appendChild(card);

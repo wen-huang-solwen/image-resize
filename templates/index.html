@@ -4,76 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Image Resize</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f5f5f5;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #fff;
+            color: #1a1a2e;
             min-height: 100vh;
-            padding: 2rem;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 {
-            text-align: center;
-            margin-bottom: 0.5rem;
-            font-size: 2rem;
+
+        /* --- Nav --- */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.25rem 2rem;
         }
-        .subtitle {
-            text-align: center;
-            color: #666;
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.02em;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #1a1a2e; }
+
+        /* --- Hero --- */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: #f0f7ff;
+            color: #3b82f6;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: #1a1a2e;
+            margin-bottom: 1.25rem;
+        }
+        .hero h1 .accent { color: #3b82f6; }
+        .hero-description {
+            color: #64748b;
+            font-size: 1.05rem;
+            line-height: 1.7;
             margin-bottom: 2rem;
         }
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary {
+            background: none;
+            border: none;
+            color: #1a1a2e;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .btn-secondary:hover { color: #3b82f6; }
+        .btn-secondary svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* --- Feature card --- */
+        .feature-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            color: #fff;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .feature-item:last-child { margin-bottom: 0; }
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .feature-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .feature-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .feature-item p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.5;
+        }
+
+        /* --- Upload section --- */
+        .upload-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem;
+        }
         .upload-area {
-            background: #fff;
-            border: 2px dashed #ccc;
-            border-radius: 12px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
             padding: 3rem;
             text-align: center;
             cursor: pointer;
             transition: border-color 0.2s, background 0.2s;
-            margin-bottom: 2rem;
         }
         .upload-area:hover, .upload-area.dragover {
-            border-color: #4a90d9;
+            border-color: #3b82f6;
             background: #f0f7ff;
         }
         .upload-area input[type="file"] { display: none; }
-        .upload-area p { font-size: 1.1rem; color: #666; }
-        .upload-area .browse { color: #4a90d9; text-decoration: underline; cursor: pointer; }
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            background: #e0ecff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .upload-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #3b82f6;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .upload-area .upload-text {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .upload-area .browse {
+            color: #3b82f6;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .upload-area .browse:hover { text-decoration: underline; }
+        .upload-area .upload-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+
+        /* --- Loading --- */
         .loading {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem 2rem;
             display: none;
         }
         .loading.active { display: block; }
         .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid #e0e0e0;
-            border-top-color: #4a90d9;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #3b82f6;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.25rem;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .results { display: none; }
+        .loading p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* --- Error --- */
+        .error {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: none;
+        }
+        .error.active { display: block; }
+        .error-inner {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Results --- */
+        .results {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+            display: none;
+        }
         .results.active { display: block; }
+        .results-header {
+            margin-bottom: 1.5rem;
+        }
+        .results-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.02em;
+        }
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.5rem;
         }
         .result-card {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: box-shadow 0.2s, transform 0.2s;
         }
-        .result-card h3 {
-            padding: 1rem;
-            text-align: center;
-            background: #fafafa;
-            border-bottom: 1px solid #eee;
+        .result-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .result-card-header {
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .result-card-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .result-card-header .dimensions {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 500;
         }
         .result-card .img-wrapper {
             padding: 1rem;
@@ -81,46 +314,131 @@
             justify-content: center;
             align-items: center;
             min-height: 200px;
-            background: #f9f9f9;
+            background: #f8fafc;
         }
         .result-card img {
             max-width: 100%;
             max-height: 400px;
-            border-radius: 4px;
-        }
-        .error {
-            background: #fee;
-            color: #c00;
-            padding: 1rem;
             border-radius: 8px;
-            text-align: center;
-            display: none;
-            margin-bottom: 1rem;
         }
-        .error.active { display: block; }
+        .result-card-footer {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid #f1f5f9;
+            text-align: right;
+        }
+        .btn-download {
+            background: none;
+            border: 1px solid #e2e8f0;
+            color: #1a1a2e;
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-download:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 2rem;
+            }
+            .hero h1 { font-size: 2rem; }
+            .feature-card { order: -1; }
+            .nav-links { display: none; }
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Smart Image Resize</h1>
-        <p class="subtitle">Upload an image and get smart crops in 1:1, 16:9, and 9:16 aspect ratios</p>
+    <nav>
+        <div class="logo">ImageCraft</div>
+        <ul class="nav-links">
+            <li><a href="#upload">Upload</a></li>
+            <li><a href="#results">Results</a></li>
+        </ul>
+    </nav>
 
+    <section class="hero">
+        <div>
+            <span class="hero-badge">AI-Powered Resizing</span>
+            <h1>Resize Your Images with <span class="accent">AI Precision</span></h1>
+            <p class="hero-description">
+                Upload any image and get perfectly resized versions for every platform.
+                Our AI preserves your subject while adapting the composition.
+            </p>
+            <div class="hero-actions">
+                <button class="btn-primary" id="heroUploadBtn">Upload Image</button>
+                <button class="btn-secondary" id="heroLearnBtn">
+                    How it works
+                    <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                    <h3>AI Subject Preservation</h3>
+                    <p>Gemini AI keeps your main subject intact while adapting the background.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                    <h3>Three Output Sizes</h3>
+                    <p>1080x1080 square, 1080x1920 portrait, and 1200x628 landscape.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                    <h3>Intelligent Outpainting</h3>
+                    <p>Extends backgrounds naturally to fill new aspect ratios.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="upload-section" id="upload">
         <div class="upload-area" id="uploadArea">
             <input type="file" id="fileInput" accept="image/*">
-            <p>Drag &amp; drop an image here, or <span class="browse">browse</span></p>
+            <div class="upload-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <p class="upload-text">Drag &amp; drop an image here, or <span class="browse">browse</span></p>
+            <p class="upload-hint">Supports PNG, JPG, JPEG, WebP, and GIF</p>
         </div>
+    </section>
 
-        <div class="error" id="error"></div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Analyzing image and generating smart crops...</p>
-        </div>
-
-        <div class="results" id="results">
-            <div class="results-grid" id="resultsGrid"></div>
-        </div>
+    <div class="error" id="error">
+        <div class="error-inner" id="errorInner"></div>
     </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analyzing image and generating AI resizes...</p>
+    </div>
+
+    <section class="results" id="results">
+        <div class="results-header">
+            <h2>Resized Images</h2>
+        </div>
+        <div class="results-grid" id="resultsGrid"></div>
+    </section>
 
     <script>
         const uploadArea = document.getElementById('uploadArea');
@@ -129,7 +447,10 @@
         const results = document.getElementById('results');
         const resultsGrid = document.getElementById('resultsGrid');
         const errorDiv = document.getElementById('error');
+        const errorInner = document.getElementById('errorInner');
+        const heroUploadBtn = document.getElementById('heroUploadBtn');
 
+        heroUploadBtn.addEventListener('click', () => fileInput.click());
         uploadArea.addEventListener('click', () => fileInput.click());
 
         uploadArea.addEventListener('dragover', (e) => {
@@ -190,15 +511,21 @@
         }
 
         function showError(msg) {
-            errorDiv.textContent = msg;
+            errorInner.textContent = msg;
             errorDiv.classList.add('active');
             loading.classList.remove('active');
         }
 
         const ratioLabels = {
-            '1_1': '1:1 (Square)',
-            '16_9': '16:9 (Landscape)',
-            '9_16': '9:16 (Portrait)',
+            '1080x1080': '1:1 Square',
+            '1080x1920': '9:16 Portrait',
+            '1200x628': '16:9 Landscape',
+        };
+
+        const dimensionLabels = {
+            '1080x1080': '1080 x 1080',
+            '1080x1920': '1080 x 1920',
+            '1200x628': '1200 x 628',
         };
 
         function displayResults(data) {
@@ -208,15 +535,22 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.innerHTML = `
-                    <h3>${ratioLabels[key] || key}</h3>
+                    <div class="result-card-header">
+                        <h3>${ratioLabels[key] || key}</h3>
+                        <span class="dimensions">${dimensionLabels[key] || key}</span>
+                    </div>
                     <div class="img-wrapper">
-                        <img src="${url}" alt="${key} crop">
+                        <img src="${url}" alt="${key} resize">
+                    </div>
+                    <div class="result-card-footer">
+                        <a class="btn-download" href="${url}" download="${key}.jpg">Download</a>
                     </div>
                 `;
                 resultsGrid.appendChild(card);
             }
 
             results.classList.add('active');
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     </script>
 </body>

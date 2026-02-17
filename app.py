@@ -16,11 +16,11 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 
-# Target aspect ratios as strings for Gemini ImageConfig
+# Output sizes mapped to Gemini aspect ratio strings
 ASPECT_RATIOS = {
-    "1_1": "1:1",
-    "16_9": "16:9",
-    "9_16": "9:16",
+    "1080x1080": "1:1",
+    "1080x1920": "9:16",
+    "1200x628": "16:9",
 }
 
 
@@ -137,12 +137,14 @@ def upload():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or api_key == "your_key_here":
         # No API key — fall back to center crops for all ratios
-        for name, ratio_str in ASPECT_RATIOS.items():
+        for size_name, ratio_str in ASPECT_RATIOS.items():
+            target_w, target_h = [int(x) for x in size_name.split("x")]
             cropped = center_crop_fallback(img, ratio_str)
-            crop_filename = f"{file_id}_{name}.jpg"
+            cropped = cropped.resize((target_w, target_h), Image.LANCZOS)
+            crop_filename = f"{file_id}_{size_name}.jpg"
             crop_path = os.path.join(app.config["UPLOAD_FOLDER"], crop_filename)
             cropped.save(crop_path, "JPEG", quality=90)
-            results["crops"][name] = f"/static/uploads/{crop_filename}"
+            results["crops"][size_name] = f"/static/uploads/{crop_filename}"
         return jsonify(results)
 
     client = genai.Client(api_key=api_key)
@@ -151,7 +153,9 @@ def upload():
     description = describe_image(client, img)
 
     # Step 2: AI resize for each aspect ratio
-    for name, ratio_str in ASPECT_RATIOS.items():
+    for size_name, ratio_str in ASPECT_RATIOS.items():
+        target_w, target_h = [int(x) for x in size_name.split("x")]
+
         try:
             resized = ai_resize(client, img, description, ratio_str)
         except Exception:
@@ -160,12 +164,15 @@ def upload():
         if resized is None:
             resized = center_crop_fallback(img, ratio_str)
 
-        crop_filename = f"{file_id}_{name}.jpg"
+        # Resize to exact target pixel dimensions
+        resized = resized.resize((target_w, target_h), Image.LANCZOS)
+
+        crop_filename = f"{file_id}_{size_name}.jpg"
         crop_path = os.path.join(app.config["UPLOAD_FOLDER"], crop_filename)
         if resized.mode == "RGBA":
             resized = resized.convert("RGB")
         resized.save(crop_path, "JPEG", quality=90)
-        results["crops"][name] = f"/static/uploads/{crop_filename}"
+        results["crops"][size_name] = f"/static/uploads/{crop_filename}"
 
     return jsonify(results)
 

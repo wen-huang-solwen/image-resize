@@ -279,7 +279,8 @@ def refine():
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash-image",
+            model="gemini-3-pro-image-preview",
+            #model="gemini-2.5-flash-image",
             contents=[prompt, original_img],
             config=types.GenerateContentConfig(
                 response_modalities=["TEXT", "IMAGE"],
@@ -312,4 +313,4 @@ def refine():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000,host="0.0.0.0")

@@ -217,6 +217,78 @@
             margin-top: 0.5rem;
         }
 
+        /* --- Preview state --- */
+        .upload-area.has-preview {
+            border-style: solid;
+            border-color: #3b82f6;
+            background: #f8fafc;
+            padding: 1.5rem;
+        }
+        .preview-container {
+            display: none;
+        }
+        .upload-area.has-preview .preview-container {
+            display: block;
+        }
+        .upload-area.has-preview .upload-icon,
+        .upload-area.has-preview .upload-text,
+        .upload-area.has-preview .upload-hint {
+            display: none;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+        }
+        .preview-filename {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .btn-change-image {
+            background: none;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-change-image:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        /* --- Submit button --- */
+        .submit-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+            display: none;
+        }
+        .submit-section.active { display: block; }
+        .btn-submit {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.85rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+        }
+        .btn-submit:hover { background: #2563eb; }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
         /* --- Size selector --- */
         .size-selector {
             max-width: 1200px;
@@ -657,6 +729,11 @@
             </div>
             <p class="upload-text">將圖片拖放至此，或<span class="browse">瀏覽檔案</span></p>
             <p class="upload-hint">支援 PNG、JPG、JPEG、WebP 和 GIF 格式</p>
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" alt="預覽">
+                <p class="preview-filename" id="previewFilename"></p>
+                <button class="btn-change-image" id="changeImageBtn">更換圖片</button>
+            </div>
         </div>
     </section>
 
@@ -706,6 +783,10 @@
         </div>
     </section>
 
+    <section class="submit-section" id="submitSection">
+        <button class="btn-submit" id="submitBtn">開始 AI 調整</button>
+    </section>
+
     <div class="error" id="error">
         <div class="error-inner" id="errorInner"></div>
     </div>
@@ -731,9 +812,28 @@
         const errorDiv = document.getElementById('error');
         const errorInner = document.getElementById('errorInner');
         const heroUploadBtn = document.getElementById('heroUploadBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const previewFilename = document.getElementById('previewFilename');
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const submitSection = document.getElementById('submitSection');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Cached file — not uploaded until user clicks submit
+        let cachedFile = null;
 
         heroUploadBtn.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('click', (e) => {
+            // Don't re-open file picker when clicking the change button
+            if (e.target.closest('#changeImageBtn')) return;
+            fileInput.click();
+        });
+
+        changeImageBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
 
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -748,14 +848,40 @@
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             if (e.dataTransfer.files.length) {
-                handleFile(e.dataTransfer.files[0]);
+                cacheFile(e.dataTransfer.files[0]);
             }
         });
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length) {
-                handleFile(fileInput.files[0]);
+                cacheFile(fileInput.files[0]);
             }
+        });
+
+        function cacheFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('請選擇有效的圖片檔案。');
+                return;
+            }
+            errorDiv.classList.remove('active');
+            cachedFile = file;
+
+            // Show preview
+            const objectUrl = URL.createObjectURL(file);
+            previewImage.onload = () => URL.revokeObjectURL(objectUrl);
+            previewImage.src = objectUrl;
+            previewFilename.textContent = file.name;
+            uploadArea.classList.add('has-preview');
+            submitSection.classList.add('active');
+        }
+
+        // Submit button — triggers the actual upload
+        submitBtn.addEventListener('click', () => {
+            if (!cachedFile) {
+                showError('請先選擇圖片。');
+                return;
+            }
+            submitToServer(cachedFile);
         });
 
         // Custom sizes management
@@ -811,12 +937,7 @@
             return [...preset, ...customSizes];
         }
 
-        async function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                showError('請選擇有效的圖片檔案。');
-                return;
-            }
-
+        async function submitToServer(file) {
             const selectedSizes = getSelectedSizes();
             if (selectedSizes.length === 0) {
                 showError('請至少選擇一個輸出尺寸。');
@@ -826,6 +947,7 @@
             errorDiv.classList.remove('active');
             results.classList.remove('active');
             loading.classList.add('active');
+            submitBtn.disabled = true;
 
             const formData = new FormData();
             formData.append('image', file);
@@ -850,6 +972,7 @@
                 showError('發生錯誤，請重新嘗試。');
             } finally {
                 loading.classList.remove('active');
+                submitBtn.disabled = false;
             }
         }
 
